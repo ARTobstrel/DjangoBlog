@@ -6,9 +6,15 @@
 
 {% block content %}
     <h1 class="mb-5">Posts</h1>
-    <h1>Hello friends</h1>
-    <h2>This is main page</h2>
-    <h3>{{ request }}</h3>
-    <hr>
-    <h3>{{ req_dir }}</h3>
+    {% for post in posts %}
+
+        <div class="card mb-4">
+            <h5 class="card-header">{{ post.date_pub }}</h5>
+            <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                <p class="card-text">{{ post.body|truncatewords:15 }}</p>
+                <a href="{% url 'post_detail' slug=post.slug %}" class="btn btn-primary">Read</a>
+            </div>
+        </div>
+    {% endfor %}
 {% endblock %}
