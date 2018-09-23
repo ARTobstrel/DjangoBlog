@@ -25,6 +25,3 @@ def tags_list(request):
 class TagDetail(ObjectDetailMixin, View):
     model = Tag
     template = 'blog/tag_detail.html'
-    # def get(self, request, slug):
-    #     tag = get_object_or_404(Tag, slug__exact=slug)  # точное соответствие slug
-    #     return render(request, 'blog/tag_detail.html', {'tag': tag})
