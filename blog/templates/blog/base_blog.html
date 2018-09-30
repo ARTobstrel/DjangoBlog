@@ -1,1 +1,11 @@
 {% extends 'base.html' %}
+
+{%  block admin-panel %}
+    <a href="#" class="btn btn-light">Create</a>
+    {% if url_post_update %}
+        <a href="{% url 'post_update' slug=admin_object.slug %}" class="btn btn-light">Edit</a>
+    {% else %}
+        <a href="#" class="btn btn-light">Edit</a>
+    {% endif %}
+    <a href="#" class="btn btn-danger">Delete</a>
+{% endblock %}

@@ -57,6 +57,7 @@ class PostDelete(View):
 class PostDetail(ObjectDetailMixin, View):
     model = Post
     template = 'blog/post_detail.html'
+    url_post_update = True
 
 
 class TagDetail(ObjectDetailMixin, View):
