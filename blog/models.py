@@ -1,6 +1,7 @@
 from time import time
 
 from django.db import models
+from django.urls import reverse
 from django.utils.text import slugify
 
 
@@ -23,6 +24,15 @@ class Post(models.Model):
             self.slug = gen_slug(self.title)
         super().save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse('post_detail', kwargs={'slug': self.slug})
+
+    def get_update_url(self):
+        return reverse('post_update', kwargs={'slug': self.slug})
+
+    def get_delete_url(self):
+        return reverse('post_delete', kwargs={'slug': self.slug})
+
     def __str__(self):
         post_name = f'{self.title}'  # python version 3.6
         return post_name
@@ -31,6 +41,15 @@ class Post(models.Model):
 class Tag(models.Model):
     title = models.CharField(max_length=50)
     slug = models.SlugField(max_length=50, unique=True, blank=True)
+
+    def get_absolute_url(self):
+        return reverse('tag_detail', kwargs={'slug': self.slug})
+
+    def get_update_url(self):
+        return reverse('tag_update', kwargs={'slug': self.slug})
+
+    def get_delete_url(self):
+        return reverse('tag_delete', kwargs={'slug': self.slug})
 
     def save(self, *args, **kwargs):
         if not self.id:
