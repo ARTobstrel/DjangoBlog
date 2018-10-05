@@ -37,6 +37,9 @@ class Post(models.Model):
         post_name = f'{self.title}'  # python version 3.6
         return post_name
 
+    class Meta:
+        ordering = ['-date_pub'] #отображения списка постов от свежего до старого
+
 
 class Tag(models.Model):
     title = models.CharField(max_length=50)
@@ -59,3 +62,6 @@ class Tag(models.Model):
     def __str__(self):
         tag_name = f'{self.title}'
         return tag_name
+
+    class Meta:
+        ordering = ['title'] # отображает теги по алфавиту

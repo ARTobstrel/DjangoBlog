@@ -70,16 +70,47 @@
             {% block content %}
                 No content
             {% endblock %}
+
+            {#            Pagination#}
+            {% if is_paginated %}
+            <nav aria-label="...">
+                <ul class="pagination">
+                    <li class="page-item {% if not prev_url %} disabled {% endif %}">
+                        <a class="page-link" href="{{ prev_url }}" tabindex="-1">Previous</a>
+                    </li>
+
+                    {% for n in page_object.paginator.page_range %}
+
+                        {% if page_object.number == n %}
+                            <li class="page-item active">
+                                <a class="page-link" href="?page={{ n }}">{{ n }}<span class="sr-only">(current)</span></a>
+                            </li>
+                        {% elif n > page_object.number|add:-3 and n < page_object.number|add:3 %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ n }}">{{ n }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    <li class="page-item {% if not next_url %} disabled {% endif %}">
+                        <a class="page-link" href="{{ next_url }}">Next</a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+
         </div>
     </div>
 </div>
 
-<div class="admin-panel align-items-center">
-    <a href="/admin" class="btn btn-outline-info">Admin</a>
-    {% block admin-panel %}
-    {% endblock %}
-</div>
 
+{% if request.user.is_authenticated and request.user.is_staff %}
+    <div class="admin-panel align-items-center">
+        <a href="/admin" class="btn btn-outline-info">Admin</a>
+        {% block admin-panel %}
+        {% endblock %}
+    </div>
+{% endif %}
 
 </body>
 </html>

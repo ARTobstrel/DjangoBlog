@@ -1,4 +1,5 @@
-from django.conf.urls import url
+from django.contrib.auth.mixins import LoginRequiredMixin #Этот класс нужен для проверки идентификации пользователя. Если пользователь не авторизован, то не  будет перехода по url
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.views.generic import View
 
@@ -9,13 +10,37 @@ from blog.utils import ObjectDetailMixin
 
 # Create your views here.
 def post_list(request):
-    posts = Post.objects.all().order_by('-date_pub')
-    return render(request, 'blog/index.html', {'posts': posts})
+    posts = Post.objects.all()
+    paginator = Paginator(posts, 5)
+    page_number = request.GET.get('page', 1)
+    page = paginator.get_page(page_number)
+
+    is_paginated = page.has_other_pages()
+    if page.has_previous():
+        prev_url = '?page={}'.format(page.previous_page_number())
+    else:
+        prev_url = ''
+
+    if page.has_next():
+        next_url = '?page={}'.format(page.next_page_number())
+    else:
+        next_url = ''
+
+    context = {
+        'page_object': page,
+        'is_paginated': is_paginated,
+        'prev_url': prev_url,
+        'next_url': next_url
+    }
 
 
-class PostCreate(View):
+    return render(request, 'blog/index.html', context)
+
+class PostCreate(LoginRequiredMixin, View):
+    raise_exception = True
     def get(self, request):
         form = PostForm()
+
         return render(request, 'blog/post_create.html', {'form': form})
 
     def post(self, request):
@@ -27,7 +52,8 @@ class PostCreate(View):
         return render(request, 'blog/post_create.html', {'form': bound_form})
 
 
-class PostUpdate(View):
+class PostUpdate(LoginRequiredMixin, View):
+    raise_exception = True
     def get(self, request, slug):
         post = Post.objects.get(slug__iexact=slug)
         bound_form = PostForm(instance=post)
@@ -43,7 +69,8 @@ class PostUpdate(View):
         return render(request, 'blog/post_update.html', {'form': bound_form, 'post': post})
 
 
-class PostDelete(View):
+class PostDelete(LoginRequiredMixin, View):
+    raise_exception = True
     def get(self, request, slug):
         post = Post.objects.get(slug__iexact=slug)
         return render(request, 'blog/post_delete.html', {'post': post})
@@ -64,7 +91,8 @@ class TagDetail(ObjectDetailMixin, View):
     template = 'blog/tag_detail.html'
 
 
-class TagCreate(View):
+class TagCreate(LoginRequiredMixin, View):
+    raise_exception = True
     def get(self, request):
         form = TagForm()
         return render(request, 'blog/tag_create.html', {'form': form})
@@ -78,7 +106,8 @@ class TagCreate(View):
         return render(request, 'blog/tag_create.html', {'form': bound_form})
 
 
-class TagUpdate(View):
+class TagUpdate(LoginRequiredMixin, View):
+    raise_exception = True
     def get(self, request, slug):
         tag = Tag.objects.get(slug__iexact=slug)
         bound_form = TagForm(instance=tag)
@@ -94,7 +123,8 @@ class TagUpdate(View):
         return render(request, 'blog/tag_update.html', {'form': bound_form, 'tag': tag})
 
 
-class TagDelete(View):
+class TagDelete(LoginRequiredMixin, View):
+    raise_exception = True
     def get(self, request, slug):
         tag = Tag.objects.get(slug__iexact=slug)
         return render(request, 'blog/tag_delete.html', {'tag': tag})
