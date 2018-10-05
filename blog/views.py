@@ -1,4 +1,5 @@
-from django.contrib.auth.mixins import LoginRequiredMixin #Этот класс нужен для проверки идентификации пользователя. Если пользователь не авторизован, то не  будет перехода по url
+from django.contrib.auth.mixins import \
+    LoginRequiredMixin  # Этот класс нужен для проверки идентификации пользователя. Если пользователь не авторизован, то не  будет перехода по url
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
 from django.views.generic import View
@@ -6,12 +7,19 @@ from django.views.generic import View
 from blog.forms import TagForm, PostForm
 from blog.models import Post, Tag
 from blog.utils import ObjectDetailMixin
+from django.db.models import Q
 
 
 # Create your views here.
 def post_list(request):
-    posts = Post.objects.all()
+    search_query = request.GET.get('search', '')
+
+    if search_query:
+        posts = Post.objects.filter(Q(title__icontains=search_query) | Q(body__icontains=search_query)) #филтр поиска по названию или по телу поста
+    else:
+        posts = Post.objects.all()
     paginator = Paginator(posts, 5)
+
     page_number = request.GET.get('page', 1)
     page = paginator.get_page(page_number)
 
@@ -33,11 +41,12 @@ def post_list(request):
         'next_url': next_url
     }
 
-
     return render(request, 'blog/index.html', context)
+
 
 class PostCreate(LoginRequiredMixin, View):
     raise_exception = True
+
     def get(self, request):
         form = PostForm()
 
@@ -54,6 +63,7 @@ class PostCreate(LoginRequiredMixin, View):
 
 class PostUpdate(LoginRequiredMixin, View):
     raise_exception = True
+
     def get(self, request, slug):
         post = Post.objects.get(slug__iexact=slug)
         bound_form = PostForm(instance=post)
@@ -71,6 +81,7 @@ class PostUpdate(LoginRequiredMixin, View):
 
 class PostDelete(LoginRequiredMixin, View):
     raise_exception = True
+
     def get(self, request, slug):
         post = Post.objects.get(slug__iexact=slug)
         return render(request, 'blog/post_delete.html', {'post': post})
@@ -93,6 +104,7 @@ class TagDetail(ObjectDetailMixin, View):
 
 class TagCreate(LoginRequiredMixin, View):
     raise_exception = True
+
     def get(self, request):
         form = TagForm()
         return render(request, 'blog/tag_create.html', {'form': form})
@@ -108,6 +120,7 @@ class TagCreate(LoginRequiredMixin, View):
 
 class TagUpdate(LoginRequiredMixin, View):
     raise_exception = True
+
     def get(self, request, slug):
         tag = Tag.objects.get(slug__iexact=slug)
         bound_form = TagForm(instance=tag)
@@ -125,6 +138,7 @@ class TagUpdate(LoginRequiredMixin, View):
 
 class TagDelete(LoginRequiredMixin, View):
     raise_exception = True
+
     def get(self, request, slug):
         tag = Tag.objects.get(slug__iexact=slug)
         return render(request, 'blog/tag_delete.html', {'tag': tag})
